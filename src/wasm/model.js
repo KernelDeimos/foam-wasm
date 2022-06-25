@@ -17,10 +17,6 @@ foam.LIB({
     name: 'foam',
 
     methods: [
-        function LIST(m) {
-            m.class = m.class || 'foam.core.ListModel';
-            foam.CLASS(m);
-        },
         function DEF_MACRO(m) {
             m.class = m.class || 'foam.core.MacroModel';
             foam.CLASS(m);

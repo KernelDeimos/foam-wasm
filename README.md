@@ -11,3 +11,6 @@ node wasm.js
 ```
 node try1.js
 ```
+
+### Architecture
+

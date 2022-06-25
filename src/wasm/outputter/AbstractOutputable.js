@@ -1,7 +1,13 @@
 foam.CLASS({
-    package: 'wasm.meta',
+    package: 'wasm.outputter',
     name: 'AbstractOutputable',
-    mixins: ['wasm.Mixin'],
+    implements: ['wasm.outputter.Outputable'],
+
+    mixins: ['wasm.meta.UtilityMixin'],
+
+    requires: [
+        'wasm.outputter.Outputter'
+    ],
 
     properties: [
         {

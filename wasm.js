@@ -37,31 +37,6 @@ foam.CLASS({
     ]
 })
 
-foam.CLASS({
-    package: 'wasm',
-    name: 'Mixin',
-
-    requires: [
-        'wasm.Outputter',
-        'wasm.IntegerValue'
-    ],
-
-    methods: [
-        function assert(cond, data, msg) {
-            if ( typeof cond === 'function' ) {
-                if ( ! msg ) msg = cond.toString();
-                else msg += ' ' + cond.toString();
-                cond = cond();
-            }
-            if ( ! cond ) {
-                console.log(`Assertion failed (${this.cls_.id}): ${msg}; ` +
-                    foam.json.stringify(data));
-                throw new Error(msg);
-            }
-        }
-    ]
-});
-
 foam.LIB({
     name: 'wasm.Debug',
     methods: [
@@ -73,74 +48,6 @@ foam.LIB({
         }
     ]
 });
-
-foam.CLASS({
-    package: 'wasm',
-    name: 'BinaryValueToOutputter',
-
-    properties: [
-        'binaryValue',
-        {
-            class: 'Int',
-            name: 'binarySize',
-            getter: function () {
-                return this.binaryValue.byteLength;
-            }
-        }
-    ],
-
-    methods: [
-        function outputWASM (dstBufferView) {
-            const srcBufferView = this.binaryValue instanceof ArrayBuffer
-                ? new Uint8Array(this.binaryValue)
-                : this.binaryValue;
-            for ( let i = 0 ; i < this.binarySize ; i++ ) {
-                dstBufferView[i] = srcBufferView[i];
-            }
-            return this.binarySize;
-        }
-    ]
-});
-
-foam.CLASS({
-    package: 'wasm',
-    name: 'IntegerValue',
-    mixins: ['wasm.BinaryValueToOutputter'],
-
-    properties: [
-        {
-            class: 'Int',
-            name: 'value'
-        },
-        {
-            class: 'Boolean',
-            name: 'signed'
-        },
-        {
-            class: 'Int',
-            name: 'bitWidth',
-            value: 32
-        },
-        {
-            name: 'binaryValue',
-            expression: function (value, signed) {
-                const buffer = new ArrayBuffer(Math.ceil(this.bitWidth / 7));
-                const bufferView = new Uint8Array(buffer);
-                let nBytes = 0;
-                while ( value !== 0 ) {
-                    bufferView[nBytes] = value & 0x7F;
-                    value = value >>> 7;
-                    nBytes++;
-                }
-                if ( nBytes == 0 ) nBytes = 1;
-                for ( let i = 0 ; i < nBytes - 1 ; i++ ) {
-                    bufferView[i] = bufferView[i] | 0x80;
-                }
-                return buffer.slice(0, nBytes);
-            }
-        }
-    ],
-})
 
 foam.INTERFACE({
     package: 'wasm',
@@ -154,69 +61,23 @@ foam.INTERFACE({
     ]
 });
 
-foam.CLASS({
-    package: 'wasm',
-    name: 'Vector',
-    mixins: ['wasm.Mixin'],
-    requires: ['wasm.IntegerValue'],
-
-    properties: [
-        {
-            class: 'FObjectArray',
-            of: 'foam.core.FObject',
-            name: 'contents'
-        },
-        {
-            class: 'FObjectProperty',
-            of: 'wasm.IntegerValue',
-            name: 'vectorSize',
-            getter: function () {
-                return this.IntegerValue.create({
-                    value: this.contents.length
-                });
-            }
-        },
-        {
-            class: 'Int',
-            name: 'binarySize',
-            expression: function (vectorSize, contents) {
-                let size = vectorSize.binarySize;
-                for ( const item of this.contents ) {
-                    size += item.binarySize;
-                }
-                return size;
-            }
-        }
-    ],
-
-    methods: [
-        function outputWASM(bufferView) {
-            let pos = 0;
-            const output = (obj) => {
-                const view = bufferView.subarray(pos, pos + obj.binarySize);
-                pos += obj.outputWASM(view);
-                console.log(obj.cls_.name, '' + pos)
-            };
-            output(this.vectorSize);
-            for ( const item of this.contents ) {
-                output(item);
-            }
-            this.assert(() => pos == this.binarySize, [pos, this.binarySize])
-            return pos;
-        }
-    ]
-});
-
 // rqs
+require('./src/wasm/foam/Array.js');
 require('./src/wasm/model.js');
-require('./src/wasm/meta/macros');
-require('./src/wasm/meta/AbstractOutputable');
-require('./src/wasm/FunctionType.js');
-require('./src/wasm/Byte.js');
-require('./src/wasm/Name.js');
-require('./src/wasm/Export.js');
-require('./src/wasm/Code.js');
-require('./src/wasm/Expr.js');
+require('./src/wasm/outputter/Outputter');
+require('./src/wasm/outputter/AbstractOutputable');
+require('./src/wasm/meta/Mixin');
+require('./src/wasm/model/primitive/BinaryValueToOutputter');
+require('./src/wasm/model/primitive/IntegerValue');
+require('./src/wasm/model/primitive/Byte');
+require('./src/wasm/model/primitive/Name');
+require('./src/wasm/model/composite/meta/Macro.js');
+require('./src/wasm/model/composite/Vector.js');
+require('./src/wasm/model/composite/Code.js');
+require('./src/wasm/model/composite/Export.js');
+require('./src/wasm/model/composite/Expr.js');
+require('./src/wasm/model/composite/FunctionType.js');
+require('./src/wasm/model/composite/Section.js');
 require('./src/wasm/instructions.js');
 // end
 
@@ -232,7 +93,7 @@ foam.CLASS({
     properties: [
         {
             class: 'FObjectArray',
-            of: 'wasm.Section',
+            of: 'wasm.model.composite.Section',
             name: 'sections'
         },
         {
@@ -262,27 +123,9 @@ foam.CLASS({
     ]
 });
 
-foam.APPLY_MACRO('wasm.meta.Outputable', {
-    id: 'wasm.Section',
-    seq: [
-        'Byte', { name: 'sectionId' },
-        'FObject', {
-            of: 'wasm.IntegerValue',
-            name: 'sectionSize',
-            getter: function () {
-                return this.IntegerValue.create({
-                    value: this.contents.binarySize
-                });
-            }
-        },
-        'FObject', {
-            name: 'contents'
-        },
-    ]
-});
 
 const main = async function () {
-    let testVal1 = wasm.IntegerValue.create({
+    let testVal1 = wasm.model.primitive.IntegerValue.create({
         signed: false,
         value: 0,
         bitWidth: 32
@@ -295,18 +138,18 @@ const main = async function () {
         class: 'wasm.Module',
         sections: [
             {
-                class: 'wasm.Section',
+                class: 'wasm.model.composite.Section',
                 sectionId: sec.type,
                 contents: {
-                    class: 'wasm.Vector',
+                    class: 'wasm.model.composite.Vector',
                     contents: [
                         {
-                            class: 'wasm.FunctionType',
-                            parameters: { class: 'wasm.Vector' },
+                            class: 'wasm.model.composite.FunctionType',
+                            parameters: { class: 'wasm.model.composite.Vector' },
                             results: {
-                                class: 'wasm.Vector',
+                                class: 'wasm.model.composite.Vector',
                                 contents: [
-                                    { class: 'wasm.Byte', value: 0x7F }
+                                    { class: 'wasm.model.primitive.Byte', value: 0x7F }
                                 ]
                             }
                         }
@@ -314,27 +157,27 @@ const main = async function () {
                 }
             },
             {
-                class: 'wasm.Section',
+                class: 'wasm.model.composite.Section',
                 sectionId: sec.func,
                 contents: {
-                    class: 'wasm.Vector',
+                    class: 'wasm.model.composite.Vector',
                     contents: [
-                        { class: 'wasm.Byte', value: 0 }
+                        { class: 'wasm.model.primitive.Byte', value: 0 }
                     ]
                 }
             },
             {
-                class: 'wasm.Section',
+                class: 'wasm.model.composite.Section',
                 sectionId: sec.export,
                 contents: {
-                    class: 'wasm.Vector',
+                    class: 'wasm.model.composite.Vector',
                     contents: [
                         {
-                            class: 'wasm.Export',
+                            class: 'wasm.model.composite.Export',
                             name: 'helloWorld',
                             idxClass: 0, // function
                             idxValue: {
-                                class: 'wasm.IntegerValue',
+                                class: 'wasm.model.primitive.IntegerValue',
                                 value: 0
                             }
                         }
@@ -342,28 +185,28 @@ const main = async function () {
                 }
             },
             {
-                class: 'wasm.Section',
+                class: 'wasm.model.composite.Section',
                 sectionId: sec.code,
                 contents: {
-                    class: 'wasm.Vector',
+                    class: 'wasm.model.composite.Vector',
                     contents: [
                         {
-                            class: 'wasm.Code',
+                            class: 'wasm.model.composite.Code',
                             name: 'helloWorld',
                             expr: {
-                                class: 'wasm.Expr',
+                                class: 'wasm.model.composite.Expr',
                                 instructions: [
                                     {
                                         class: 'wasm.ins.ConstInt32',
                                         value: {
-                                            class: 'wasm.IntegerValue',
+                                            class: 'wasm.model.primitive.IntegerValue',
                                             value: 42
                                         }
                                     }
                                     // {
                                     //     class: 'wasm.ins.ConstInt32',
                                     //     value: {
-                                    //         class: 'wasm.IntegerValue',
+                                    //         class: 'wasm.model.primitive.IntegerValue',
                                     //         value: 42
                                     //     }
                                     // }

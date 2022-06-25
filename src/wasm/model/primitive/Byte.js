@@ -1,6 +1,7 @@
 foam.CLASS({
-    package: 'wasm',
+    package: 'wasm.model.primitive',
     name: 'Byte',
+    implements: ['wasm.outputter.Outputable'],
 
     properties: [
         {

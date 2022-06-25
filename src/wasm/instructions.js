@@ -19,12 +19,12 @@ foam.CLASS({
     package: 'wasm.ins',
     name: 'VariableInstruction',
     extends: 'wasm.ins.OpInstruction',
-    mixins: ['wasm.Mixin'],
+    mixins: ['wasm.meta.Mixin'],
 
     properties: [
         {
             class: 'FObjectProperty',
-            of: 'wasm.IntegerValue',
+            of: 'wasm.model.primitive.IntegerValue',
             name: 'value',
             preSet: function (_, v) {
                 this.assert(() => v?.bitWidth === 32, v);
@@ -62,7 +62,7 @@ foam.DEF_MACRO({
                 ...(
                     propType === 'u32' ? {
                         class: 'FObjectProperty',
-                        of: 'wasm.IntegerValue',
+                        of: 'wasm.model.primitive.IntegerValue',
                         postSet: function (_, v) {
                             this.assert(() => v?.bitWidth === 32, v);
                             return v;
@@ -93,7 +93,7 @@ foam.DEF_MACRO({
             name: spec[1].split('.').map(foam.String.capitalize).join('') +
                 'Instruction',
             extends: 'wasm.ins.OpInstruction',
-            mixins: ['wasm.Mixin'],
+            mixins: ['wasm.meta.Mixin'],
 
             properties,
 
@@ -123,14 +123,14 @@ foam.APPLY_MACRO("wasm.ins.InstructionMacro", [
 foam.CLASS({
     package: 'wasm.ins',
     name: 'ConstInt32',
-    mixins: ['wasm.Mixin'],
+    mixins: ['wasm.meta.Mixin'],
 
-    'meta.wasm.name': 'int32.const',
+    'meta.wasm.model.primitive.Name': 'int32.const',
 
     properties: [
         {
             class: 'FObjectProperty',
-            of: 'wasm.IntegerValue',
+            of: 'wasm.model.primitive.IntegerValue',
             name: 'value',
             preSet: function (_, v) {
                 this.assert(() => v?.bitWidth === 32, v);

@@ -1,5 +1,5 @@
-foam.APPLY_MACRO('wasm.meta.Outputable', {
-    id: 'wasm.Export',
+foam.APPLY_MACRO('wasm.model.composite.meta.Macro', {
+    id: 'wasm.model.composite.Export',
     seq: [
         'Name', {
             name: 'name'
@@ -8,7 +8,7 @@ foam.APPLY_MACRO('wasm.meta.Outputable', {
             name: 'idxClass'
         },
         'FObject', {
-            of: 'wasm.IntegerValue',
+            of: 'wasm.model.primitive.IntegerValue',
             name: 'idxValue'
         }
     ]

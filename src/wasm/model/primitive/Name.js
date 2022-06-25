@@ -1,7 +1,18 @@
 foam.CLASS({
-    package: 'wasm',
+    package: 'wasm.model.primitive',
     name: 'Name',
-    mixins: ['wasm.Mixin'],
+    mixins: ['wasm.meta.UtilityMixin'],
+    requires: [
+        'wasm.outputter.Outputter',
+        'wasm.model.primitive.IntegerValue'
+    ],
+    implements: ['wasm.outputter.Outputable'],
+
+    documentation: `
+        In the grammar, name := vec(byte), however creating a separate FObject
+        for each byte would relatively expensive, so this model provides a more
+        memory-efficient alternative.
+    `,
     
     properties: [
         {
@@ -16,7 +27,7 @@ foam.CLASS({
         },
         {
             class: 'FObjectProperty',
-            of: 'wasm.IntegerValue',
+            of: 'wasm.model.primitive.IntegerValue',
             name: 'nameSize',
             expression: function (binaryStringValue) {
                 return this.IntegerValue.create({

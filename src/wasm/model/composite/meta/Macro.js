@@ -1,17 +1,5 @@
-foam.LIB({
-    name: 'foam.Array',
-
-    methods: [
-        function* chunk (a, sz) {
-            for ( let i = 0; i < a.length; i += sz ) {
-                yield a.slice(i, i + sz);
-            }
-        }
-    ]
-});
-
 foam.CLASS({
-    package: 'wasm.meta', name: 'ByteLiteralOutputStep',
+    package: 'wasm.model.composite.meta', name: 'ByteLiteralOutputStep',
     properties: [ { class: 'Int', name: 'value' } ],
     methods: [
         function output (_, out) { out.outputByte(this.value); },
@@ -20,7 +8,7 @@ foam.CLASS({
 });
 
 foam.CLASS({
-    package: 'wasm.meta', name: 'FObjectOutputStep',
+    package: 'wasm.model.composite.meta', name: 'FObjectOutputStep',
     properties: [ { class: 'String', name: 'property' } ],
     methods: [
         function output (obj, out) { out.output(obj[this.property]); },
@@ -29,7 +17,7 @@ foam.CLASS({
 });
 
 foam.CLASS({
-    package: 'wasm.meta', name: 'FObjectArrayOutputStep',
+    package: 'wasm.model.composite.meta', name: 'FObjectArrayOutputStep',
     properties: [ { class: 'String', name: 'property' } ],
     methods: [
         function output (obj, out) {
@@ -43,8 +31,8 @@ foam.CLASS({
 });
 
 foam.DEF_MACRO({
-    package: 'wasm.meta',
-    name: 'Outputable',
+    package: 'wasm.model.composite.meta',
+    name: 'Macro',
 
     code: function (spec) {
         const outputSteps = [];
@@ -54,37 +42,37 @@ foam.DEF_MACRO({
             const prefixName = 'binary' + foam.String.capitalize(config.name);
             if ( type === 'ByteLiteral' ) {
                 outputSteps.push({
-                    class: 'wasm.meta.ByteLiteralOutputStep',
+                    class: 'wasm.model.composite.meta.ByteLiteralOutputStep',
                     value: config
                 });
                 continue;
             }
             if ( type === 'FObjectArray' ) {
                 outputSteps.push({
-                    class: 'wasm.meta.FObjectArrayOutputStep',
+                    class: 'wasm.model.composite.meta.FObjectArrayOutputStep',
                     property: config.name
                 });
                 properties.push({ class: 'FObjectArray', of: 'FObject', ...config });
                 continue
             }
             if ( type === 'Byte' ) {
-                config.of = config.of || 'wasm.Byte';
+                config.of = config.of || 'wasm.model.primitive.Byte';
                 properties.push({ class: 'Int', name: config.name });
                 config.expression = foam.Function.spoofArgNames(function (v) {
-                    return wasm.Byte.create({ value: v })
+                    return wasm.model.primitive.Byte.create({ value: v })
                 }, [config.name]);
                 config.name = prefixName;
             }
             if ( type === 'Name' ) {
-                config.of = config.of || 'wasm.Name';
+                config.of = config.of || 'wasm.model.primitive.Name';
                 properties.push({ class: 'String', name: config.name });
                 config.expression = foam.Function.spoofArgNames(function (v) {
-                    return wasm.Name.create({ value: v })
+                    return wasm.model.primitive.Name.create({ value: v })
                 }, [config.name]);
                 config.name = prefixName;
             }
             outputSteps.push({
-                class: 'wasm.meta.FObjectOutputStep',
+                class: 'wasm.model.composite.meta.FObjectOutputStep',
                 property: config.name
             });
             properties.push({ class: 'FObjectProperty', ...config });
@@ -93,7 +81,14 @@ foam.DEF_MACRO({
         foam.CLASS({
             package: spec.id.split('.').slice(0, -1).join('.'),
             name: spec.id.split('.').slice(-1)[0],
-            extends: 'wasm.meta.AbstractOutputable',
+            extends: 'wasm.outputter.AbstractOutputable',
+
+            requires: [
+                'wasm.model.primitive.IntegerValue',
+                'wasm.model.primitive.Name',
+                'wasm.model.primitive.Byte',
+                'wasm.model.primitive.BinaryValue'
+            ],
 
             properties: [
                 { name: 'outputSteps_', factory: () => outputSteps },
