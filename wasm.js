@@ -63,7 +63,7 @@ foam.INTERFACE({
 
 // rqs
 require('./src/wasm/foam/Array.js');
-require('./src/wasm/model.js');
+require('./src/wasm/foam/Macro.js');
 require('./src/wasm/outputter/Outputter');
 require('./src/wasm/outputter/AbstractOutputable');
 require('./src/wasm/meta/Mixin');
