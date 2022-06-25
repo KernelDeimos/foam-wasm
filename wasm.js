@@ -209,6 +209,8 @@ foam.CLASS({
 
 // rqs
 require('./src/wasm/model.js');
+require('./src/wasm/meta/macros');
+require('./src/wasm/meta/AbstractOutputable');
 require('./src/wasm/FunctionType.js');
 require('./src/wasm/Byte.js');
 require('./src/wasm/Name.js');
@@ -260,29 +262,11 @@ foam.CLASS({
     ]
 });
 
-foam.CLASS({
-    package: 'wasm',
-    name: 'Section',
-
-    requires: ['wasm.IntegerValue'],
-
-    properties: [
-        {
-            class: 'Int',
-            name: 'sectionId'
-        },
-        {
-            class: 'Int',
-            name: 'binarySize',
-            getter: function () {
-                let size = 1;
-                size += this.sectionSize.binarySize;
-                size += this.contents.binarySize;
-                return size;
-            }
-        },
-        {
-            class: 'FObjectProperty',
+foam.APPLY_MACRO('wasm.meta.Outputable', {
+    id: 'wasm.Section',
+    seq: [
+        'Byte', { name: 'sectionId' },
+        'FObject', {
             of: 'wasm.IntegerValue',
             name: 'sectionSize',
             getter: function () {
@@ -291,27 +275,11 @@ foam.CLASS({
                 });
             }
         },
-        {
-            class: 'FObjectProperty',
+        'FObject', {
             name: 'contents'
-        }
-    ],
-
-    methods: [
-        function outputWASM (bufferView) {
-            bufferView[0] = this.sectionId;
-            let pos = 1;
-
-            const output = (obj) => {
-                const view = bufferView.subarray(pos, pos + obj.binarySize);
-                pos += obj.outputWASM(view);
-            };
-
-            output(this.sectionSize);
-            output(this.contents);
-        }
+        },
     ]
-})
+});
 
 const main = async function () {
     let testVal1 = wasm.IntegerValue.create({

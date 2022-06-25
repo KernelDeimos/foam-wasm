@@ -1,25 +1,7 @@
-foam.CLASS({
-    package: 'wasm',
-    name: 'Code',
-
-    mixins: ['wasm.Mixin'],
-    requires: [
-        'wasm.Vector'
-    ],
-
-    properties: [
-        {
-            class: 'Int',
-            name: 'binarySize',
-            getter: function () {
-                size = this.funcSize.binarySize;
-                size += this.locals.binarySize;
-                size += this.expr.binarySize;
-                return size;
-            }
-        },
-        {
-            class: 'FObjectProperty',
+foam.APPLY_MACRO('wasm.meta.Outputable', {
+    id: 'wasm.Code',
+    seq: [
+        'FObject', {
             of: 'wasm.IntegerValue',
             name: 'funcSize',
             expression: function (locals, expr) {
@@ -28,29 +10,10 @@ foam.CLASS({
                 });
             }
         },
-        {
-            class: 'FObjectProperty',
-            of: 'wasm.Vector',
-            name: 'locals',
-            factory: function () {
-                return this.Vector.create();
-            }
+        'FObject', {
+            of: 'wasm.Vector', name: 'locals',
+            factory: function () { return wasm.Vector.create(); }
         },
-        {
-            class: 'FObjectProperty',
-            of: 'wasm.Expr',
-            name: 'expr'
-        }
-    ],
-
-    methods: [
-        function outputWASM(bufferView) {
-            const out = this.Outputter.create({ bufferView });
-            out.output(this.funcSize);
-            out.output(this.locals);
-            out.output(this.expr);
-            this.assert(() => out.pos == this.binarySize, [out.pos, this.binarySize])
-            return out.pos;
-        }
+        'FObject', { of: 'wasm.Expr', name: 'expr' }
     ]
 });

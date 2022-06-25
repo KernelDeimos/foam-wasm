@@ -1,20 +1,5 @@
 foam.CLASS({
     package: 'foam.core',
-    name: 'ListModel',
-    extends: 'foam.core.Model',
-
-    documentation: 'A list of data stored in the FOAM registry',
-
-    properties: [
-        {
-            class: 'Array',
-            name: 'values'
-        }
-    ]
-});
-
-foam.CLASS({
-    package: 'foam.core',
     name: 'MacroModel',
     extends: 'foam.core.Model',
 
