@@ -67,7 +67,14 @@ foam.DEF_MACRO({
                 properties.push({ class: 'FObjectArray', of: 'FObject', ...config });
                 continue
             }
-            if ( type === 'Byte' ) config.of = config.of || 'wasm.Byte';
+            if ( type === 'Byte' ) {
+                config.of = config.of || 'wasm.Byte';
+                properties.push({ class: 'Int', name: config.name });
+                config.expression = foam.Function.spoofArgNames(function (v) {
+                    return wasm.Byte.create({ value: v })
+                }, [config.name]);
+                config.name = prefixName;
+            }
             if ( type === 'Name' ) {
                 config.of = config.of || 'wasm.Name';
                 properties.push({ class: 'String', name: config.name });

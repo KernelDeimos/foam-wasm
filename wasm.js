@@ -359,21 +359,7 @@ const main = async function () {
                                             class: 'wasm.IntegerValue',
                                             value: 42
                                         }
-                                    },
-                                    {
-                                        class: 'wasm.ins.LocalSetInstruction',
-                                        idx: {
-                                            class: 'wasm.IntegerValue',
-                                            value: 0x00
-                                        }
-                                    },
-                                    {
-                                        class: 'wasm.ins.LocalGetInstruction',
-                                        idx: {
-                                            class: 'wasm.IntegerValue',
-                                            value: 0x00
-                                        }
-                                    },
+                                    }
                                     // {
                                     //     class: 'wasm.ins.ConstInt32',
                                     //     value: {
