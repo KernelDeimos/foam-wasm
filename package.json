@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "foam3": "github:kgrgreer/foam3#NP-7064/LastWorkingFoobar",
+    "wabt": "^1.0.29"
+  }
+}
