@@ -78,6 +78,7 @@ require('./src/wasm/model/composite/Export.js');
 require('./src/wasm/model/composite/Expr.js');
 require('./src/wasm/model/composite/FunctionType.js');
 require('./src/wasm/model/composite/Section.js');
+require('./src/wasm/model/composite/Locals.js');
 require('./src/wasm/model/ins/OpInstruction.js');
 require('./src/wasm/model/ins/InstructionMacro.js');
 require('./src/wasm/model/ins/instructions.js');
@@ -196,6 +197,19 @@ const main = async function () {
                         {
                             class: 'wasm.model.composite.Code',
                             name: 'helloWorld',
+                            locals: {
+                                class: 'wasm.model.composite.Vector',
+                                contents: [
+                                    {
+                                        class: 'wasm.model.composite.Locals',
+                                        count: {
+                                            class: 'wasm.model.primitive.IntegerValue',
+                                            value: 1
+                                        },
+                                        valueType: 0x7F
+                                    }
+                                ]
+                            },
                             expr: {
                                 class: 'wasm.model.composite.Expr',
                                 instructions: [
@@ -206,7 +220,21 @@ const main = async function () {
                                             class: 'wasm.model.primitive.IntegerValue',
                                             value: 42
                                         }
-                                    }
+                                    },
+                                    {
+                                        class: 'wasm.model.ins.LocalSetInstruction',
+                                        idx: {
+                                            class: 'wasm.model.primitive.IntegerValue',
+                                            value: 0x00
+                                        }
+                                    },
+                                    {
+                                        class: 'wasm.model.ins.LocalGetInstruction',
+                                        idx: {
+                                            class: 'wasm.model.primitive.IntegerValue',
+                                            value: 0x00
+                                        }
+                                    },
                                     // {
                                     //     class: 'wasm.ins.ConstInt32',
                                     //     value: {
