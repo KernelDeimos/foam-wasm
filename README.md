@@ -42,4 +42,5 @@ Models in here all use `./meta/Macro` to describe a composite WASM outputter.
 
 #### `/src/instructions.js`
 
-This is a bit of a mess right now - planning to reorganize it before adding more.
+All instructions extend OpInstruction. Instructions are defined in `instructions.js`
+using the macro `wasm.model.ins.InstructionModel`.

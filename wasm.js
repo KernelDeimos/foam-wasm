@@ -78,7 +78,10 @@ require('./src/wasm/model/composite/Export.js');
 require('./src/wasm/model/composite/Expr.js');
 require('./src/wasm/model/composite/FunctionType.js');
 require('./src/wasm/model/composite/Section.js');
-require('./src/wasm/instructions.js');
+require('./src/wasm/model/ins/OpInstruction.js');
+require('./src/wasm/model/ins/InstructionMacro.js');
+require('./src/wasm/model/ins/instructions.js');
+// require('./src/wasm/instructions.js');
 // end
 
 foam.CLASS({
@@ -197,7 +200,8 @@ const main = async function () {
                                 class: 'wasm.model.composite.Expr',
                                 instructions: [
                                     {
-                                        class: 'wasm.ins.ConstInt32',
+                                        class: 'wasm.model.ins.I32ConstInstruction',
+                                        // class: 'wasm.ins.ConstInt32',
                                         value: {
                                             class: 'wasm.model.primitive.IntegerValue',
                                             value: 42
