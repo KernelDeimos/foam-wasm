@@ -8,7 +8,7 @@ globalThis.assert = function (cond, msg, data) {
     }
 }
 
-foam.require('./node_modules/foam3/src/pom');
+foam.require('pom')
 
 const SECTION_TYPES = {
     type: 1,
@@ -16,26 +16,6 @@ const SECTION_TYPES = {
     export: 7,
     code: 10
 };
-
-foam.CLASS({
-    package: 'wasm',
-    name: 'Outputter',
-
-    properties: [
-        { class: 'Int', name: 'pos' },
-        'bufferView'
-    ],
-
-    methods: [
-        function output (obj) {
-            const view = this.bufferView.subarray(this.pos, this.pos + obj.binarySize);
-            this.pos += obj.outputWASM(view);
-        },
-        function outputByte (val) {
-            this.bufferView[this.pos++] = val;
-        }
-    ]
-})
 
 foam.LIB({
     name: 'wasm.Debug',
@@ -48,42 +28,6 @@ foam.LIB({
         }
     ]
 });
-
-foam.INTERFACE({
-    package: 'wasm',
-    name: 'Binary',
-
-    properties: [
-        {
-            class: 'Int',
-            name: 'binarySize'
-        }
-    ]
-});
-
-// rqs
-require('./src/wasm/foam/Array.js');
-require('./src/wasm/foam/Macro.js');
-require('./src/wasm/outputter/Outputter');
-require('./src/wasm/outputter/AbstractOutputable');
-require('./src/wasm/meta/Mixin');
-require('./src/wasm/model/primitive/BinaryValueToOutputter');
-require('./src/wasm/model/primitive/IntegerValue');
-require('./src/wasm/model/primitive/Byte');
-require('./src/wasm/model/primitive/Name');
-require('./src/wasm/model/composite/meta/Macro.js');
-require('./src/wasm/model/composite/Vector.js');
-require('./src/wasm/model/composite/Code.js');
-require('./src/wasm/model/composite/Export.js');
-require('./src/wasm/model/composite/Expr.js');
-require('./src/wasm/model/composite/FunctionType.js');
-require('./src/wasm/model/composite/Section.js');
-require('./src/wasm/model/composite/Locals.js');
-require('./src/wasm/model/ins/OpInstruction.js');
-require('./src/wasm/model/ins/InstructionMacro.js');
-require('./src/wasm/model/ins/instructions.js');
-// require('./src/wasm/instructions.js');
-// end
 
 foam.CLASS({
     package: 'wasm',
@@ -131,7 +75,7 @@ foam.CLASS({
 const main = async function () {
     let testVal1 = wasm.model.primitive.IntegerValue.create({
         signed: false,
-        value: 0,
+        value: 127,
         bitWidth: 32
     });
     console.log('testVal1 ' + wasm.Debug.buf2hex(testVal1.binaryValue))
