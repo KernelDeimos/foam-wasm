@@ -4,12 +4,12 @@ WebAssembly models for FOAM. Still a work-in-progress.
 
 ### Generate the demo `.wasm` file
 ```
-node wasm.js
+node wasm.js -input=example.json5
 ```
 
 ### Run the output file
 ```
-node try1.js
+node run.js example.wasm
 ```
 
 ### Architecture

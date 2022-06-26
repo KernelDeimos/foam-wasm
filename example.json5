@@ -1,0 +1,105 @@
+{
+    class: 'wasm.Module',
+    sections: [
+        {
+            class: 'wasm.model.composite.Section',
+            sectionId: 1, // type section
+            contents: {
+                class: 'wasm.model.composite.Vector',
+                contents: [
+                    {
+                        class: 'wasm.model.composite.FunctionType',
+                        parameters: { class: 'wasm.model.composite.Vector' },
+                        results: {
+                            class: 'wasm.model.composite.Vector',
+                            contents: [
+                                { class: 'wasm.model.primitive.Byte', value: 0x7F }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            class: 'wasm.model.composite.Section',
+            sectionId: 3, // func section
+            contents: {
+                class: 'wasm.model.composite.Vector',
+                contents: [
+                    { class: 'wasm.model.primitive.Byte', value: 0 }
+                ]
+            }
+        },
+        {
+            class: 'wasm.model.composite.Section',
+            sectionId: 7, // export section
+            contents: {
+                class: 'wasm.model.composite.Vector',
+                contents: [
+                    {
+                        class: 'wasm.model.composite.Export',
+                        name: 'helloWorld',
+                        idxClass: 0, // function
+                        idxValue: {
+                            class: 'wasm.model.primitive.IntegerValue',
+                            value: 0
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            class: 'wasm.model.composite.Section',
+            sectionId: 10, // code section
+            contents: {
+                class: 'wasm.model.composite.Vector',
+                contents: [
+                    {
+                        class: 'wasm.model.composite.Code',
+                        name: 'helloWorld',
+                        locals: {
+                            class: 'wasm.model.composite.Vector',
+                            contents: [
+                                {
+                                    class: 'wasm.model.composite.Locals',
+                                    count: {
+                                        class: 'wasm.model.primitive.IntegerValue',
+                                        value: 1
+                                    },
+                                    valueType: 0x7F
+                                }
+                            ]
+                        },
+                        expr: {
+                            class: 'wasm.model.composite.Expr',
+                            instructions: [
+                                {
+                                    class: 'wasm.model.ins.I32ConstInstruction',
+                                    // class: 'wasm.ins.ConstInt32',
+                                    value: {
+                                        class: 'wasm.model.primitive.IntegerValue',
+                                        value: 42
+                                    }
+                                },
+                                {
+                                    class: 'wasm.model.ins.LocalSetInstruction',
+                                    idx: {
+                                        class: 'wasm.model.primitive.IntegerValue',
+                                        value: 0x00
+                                    }
+                                },
+                                {
+                                    class: 'wasm.model.ins.LocalGetInstruction',
+                                    idx: {
+                                        class: 'wasm.model.primitive.IntegerValue',
+                                        value: 0x00
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -138,125 +138,24 @@ const main = async function () {
 
     const sec = SECTION_TYPES;
 
-    let testVal2 = foam.json.parse({
-        class: 'wasm.Module',
-        sections: [
-            {
-                class: 'wasm.model.composite.Section',
-                sectionId: sec.type,
-                contents: {
-                    class: 'wasm.model.composite.Vector',
-                    contents: [
-                        {
-                            class: 'wasm.model.composite.FunctionType',
-                            parameters: { class: 'wasm.model.composite.Vector' },
-                            results: {
-                                class: 'wasm.model.composite.Vector',
-                                contents: [
-                                    { class: 'wasm.model.primitive.Byte', value: 0x7F }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                class: 'wasm.model.composite.Section',
-                sectionId: sec.func,
-                contents: {
-                    class: 'wasm.model.composite.Vector',
-                    contents: [
-                        { class: 'wasm.model.primitive.Byte', value: 0 }
-                    ]
-                }
-            },
-            {
-                class: 'wasm.model.composite.Section',
-                sectionId: sec.export,
-                contents: {
-                    class: 'wasm.model.composite.Vector',
-                    contents: [
-                        {
-                            class: 'wasm.model.composite.Export',
-                            name: 'helloWorld',
-                            idxClass: 0, // function
-                            idxValue: {
-                                class: 'wasm.model.primitive.IntegerValue',
-                                value: 0
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                class: 'wasm.model.composite.Section',
-                sectionId: sec.code,
-                contents: {
-                    class: 'wasm.model.composite.Vector',
-                    contents: [
-                        {
-                            class: 'wasm.model.composite.Code',
-                            name: 'helloWorld',
-                            locals: {
-                                class: 'wasm.model.composite.Vector',
-                                contents: [
-                                    {
-                                        class: 'wasm.model.composite.Locals',
-                                        count: {
-                                            class: 'wasm.model.primitive.IntegerValue',
-                                            value: 1
-                                        },
-                                        valueType: 0x7F
-                                    }
-                                ]
-                            },
-                            expr: {
-                                class: 'wasm.model.composite.Expr',
-                                instructions: [
-                                    {
-                                        class: 'wasm.model.ins.I32ConstInstruction',
-                                        // class: 'wasm.ins.ConstInt32',
-                                        value: {
-                                            class: 'wasm.model.primitive.IntegerValue',
-                                            value: 42
-                                        }
-                                    },
-                                    {
-                                        class: 'wasm.model.ins.LocalSetInstruction',
-                                        idx: {
-                                            class: 'wasm.model.primitive.IntegerValue',
-                                            value: 0x00
-                                        }
-                                    },
-                                    {
-                                        class: 'wasm.model.ins.LocalGetInstruction',
-                                        idx: {
-                                            class: 'wasm.model.primitive.IntegerValue',
-                                            value: 0x00
-                                        }
-                                    },
-                                    // {
-                                    //     class: 'wasm.ins.ConstInt32',
-                                    //     value: {
-                                    //         class: 'wasm.model.primitive.IntegerValue',
-                                    //         value: 42
-                                    //     }
-                                    // }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-    })
+    const [argv, x, flags] = require('./node_modules/foam3/tools/processArgs.js')(
+        '',
+        { input: 'example.json5' },
+        {}
+    );
+
+    const fs_ = require('fs');
+    const path_ = require('path');
+    const json5_ = require('json5');
+    const data = json5_.parse(fs_.readFileSync(path_.resolve(x.input)));
+
+    let testVal2 = foam.json.parse(data)
 
     let buffer2 = new ArrayBuffer(testVal2.binarySize);
     buffer2View = new Uint8Array(buffer2);
     testVal2.outputWASM(buffer2View);
 
-    const fs_ = require('fs');
-    fs_.writeFileSync('./test.wasm', buffer2View);
+    fs_.writeFileSync('./example.wasm', buffer2View);
 
     console.log('testVal2 ' + wasm.Debug.buf2hex(buffer2))
 
