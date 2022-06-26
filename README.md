@@ -42,5 +42,5 @@ support.
 
   - #### `/src/wasm/model/ins`
 
-  All instructions extend OpInstruction. Instructions are defined in `instructions.js`
-  using the macro `wasm.model.ins.InstructionModel`.
+    All instructions extend OpInstruction. Instructions are defined in `instructions.js`
+    using the macro `wasm.model.ins.InstructionModel`.
